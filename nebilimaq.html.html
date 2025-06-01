@@ -1,0 +1,55 @@
+!DOCTYPE html
+html lang=tr
+head
+  meta charset=UTF-8
+  titleFotoğraf Çektitle
+head
+body
+  h2Kamera ile Fotoğraf Çekh2
+  button id=startKamerayı Açbuttonbrbr
+  video id=video width=320 height=240 autoplay style=displaynone;videobr
+  button id=snap style=displaynone;Fotoğraf Çek ve Gönderbutton
+  canvas id=canvas width=320 height=240 style=displaynone;canvas
+
+  script
+    const startBtn = document.getElementById('start');
+    const snapBtn = document.getElementById('snap');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const botToken = '7715203894AAGhkXZZqViXKEnGc_l5Xe7s-jdwqwCrLwY';
+    const chatId = '8053934312';
+
+    startBtn.onclick = async () = {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video true });
+        video.srcObject = stream;
+        video.style.display = 'block';
+        snapBtn.style.display = 'inline-block';
+      } catch (err) {
+        alert('Kamera izni verilmedi.');
+      }
+    };
+
+    snapBtn.onclick = () = {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('imagepng');
+
+      fetch(`httpsapi.telegram.orgbot${botToken}sendPhoto`, {
+        method 'POST',
+        body new URLSearchParams({
+          chat_id chatId,
+          photo imageData
+        })
+      })
+      .then(r = r.json())
+      .then(data = {
+        if (data.ok) alert('Fotoğraf gönderildi!');
+        else alert('Gönderim başarısız.');
+      })
+      .catch(e = alert('Hata oluştu.'));
+    };
+  script
+body
+html
